@@ -1,9 +1,56 @@
+/**
+ * @moduledoc """
+ * ## Módulo: LongitudSender
+ *
+ * Este módulo permite solicitar al usuario una palabra, enviarla a un script
+ * de Elixir para calcular su longitud y mostrar el resultado tanto en consola
+ * como en una ventana emergente.
+ *
+ * ### Funcionalidades principales:
+ * - Solicita una palabra al usuario mediante un cuadro de diálogo.
+ * - Verifica que la entrada no sea nula ni vacía.
+ * - Ejecuta un script de Elixir (longitud_palabra.exs) pasando la palabra como argumento.
+ * - Lee la salida del proceso de Elixir (cantidad de letras).
+ * - Muestra los resultados en consola y en un cuadro de diálogo.
+ *
+ * ### Entradas:
+ * - Palabra digitada por el usuario.
+ *
+ * ### Salidas:
+ * - Cantidad de letras de la palabra.
+ *
+ * ### Excepciones:
+ * - IOException: si ocurre un error al ejecutar el script de Elixir.
+ * - InterruptedException: si el proceso es interrumpido durante la ejecución.
+ * """
+ */
 import javax.swing.JOptionPane;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
 
 public class LongitudSender {
+
+    /**
+     * @doc """
+     * ## Función: main/1
+     *
+     * Esta función es el punto de entrada del programa.
+     *
+     * ### Pasos que realiza:
+     * 1. Solicita una palabra al usuario con un cuadro de diálogo.
+     * 2. Verifica que la palabra no esté vacía ni sea nula.
+     * 3. Ejecuta un script de Elixir (longitud_palabra.exs) pasándole la palabra.
+     * 4. Recibe y procesa la salida (longitud de la palabra).
+     * 5. Muestra los resultados en consola y en una ventana emergente.
+     *
+     * ### Parámetros:
+     * - args: argumentos recibidos desde la línea de comandos (no se usan en este caso).
+     *
+     * ### Retorno:
+     * - Ninguno (imprime y muestra el resultado al usuario).
+     * """
+     */
     public static void main(String[] args) {
         try {
             // 1. Solicitar al usuario que digite una palabra
@@ -13,40 +60,40 @@ public class LongitudSender {
                 "Contador de letras",
                 JOptionPane.QUESTION_MESSAGE
             );
-            
+
             // Verificar que el usuario no canceló o ingresó texto vacío
             if (palabraIngresada == null || palabraIngresada.trim().isEmpty()) {
                 JOptionPane.showMessageDialog(null, "No se ingresó ninguna palabra.");
                 return;
             }
-            
+
             // Mostrar la palabra ingresada
             System.out.println("Palabra ingresada: " + palabraIngresada);
-            
+
             // 2. Ejecutar el script de Elixir pasándole la palabra
             ProcessBuilder pb = new ProcessBuilder("cmd", "/c", "elixir", "longitud_palabra.exs", palabraIngresada);
             pb.directory(new java.io.File("."));
             pb.redirectErrorStream(true);
             Process proceso = pb.start();
-            
+
             // 3. Leer la respuesta de Elixir (cantidad de letras)
             BufferedReader reader = new BufferedReader(new InputStreamReader(proceso.getInputStream()));
             StringBuilder output = new StringBuilder();
             String linea;
-            
+
             while ((linea = reader.readLine()) != null) {
                 output.append(linea);
             }
-            
+
             // Esperar a que termine el proceso
             int exitCode = proceso.waitFor();
             String longitudRespuesta = output.toString().trim();
-            
+
             // 4. Mostrar el resultado
             System.out.println("Código de salida: " + exitCode);
             if (!longitudRespuesta.isEmpty() && exitCode == 0) {
                 System.out.println("Cantidad de letras: " + longitudRespuesta);
-                
+
                 // Mostrar en ventana de diálogo
                 JOptionPane.showMessageDialog(
                     null,
@@ -59,7 +106,7 @@ public class LongitudSender {
                 System.out.println("Error: No se pudo calcular la longitud de la palabra");
                 JOptionPane.showMessageDialog(null, "Error: No se pudo procesar la palabra");
             }
-            
+
         } catch (IOException | InterruptedException e) {
             System.err.println("Error ejecutando el script de Elixir: " + e.getMessage());
             JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
